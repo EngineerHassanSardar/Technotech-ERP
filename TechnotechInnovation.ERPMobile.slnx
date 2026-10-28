@@ -1,0 +1,9 @@
+<Solution>
+  <Project Path="CommonModels/CommonModels.csproj" />
+  <Project Path="Core/Core.csproj" />
+  <Project Path="Entities/Entities.csproj" />
+  <Project Path="Services/Services.csproj" />
+  <Project Path="TechnotechInnovation.ERPMobile/TechnotechInnovation.ERPMobile.csproj">
+    <Deploy Solution="Debug|*" />
+  </Project>
+</Solution>

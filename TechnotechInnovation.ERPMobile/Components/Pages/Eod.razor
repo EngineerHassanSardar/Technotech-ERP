@@ -1,0 +1,116 @@
+﻿@page "/eod"
+@using MudBlazor
+@using CommonModels.Reports
+@using Core.BaseRepository
+@using TechnotechInnovation.ERPMobile.Components.Shared
+@inject IEodService EodService
+
+<PageTitle>End of Day - Technotech ERP</PageTitle>
+
+<div class="erp-eod">
+    <div class="section-header mb-3 mt-2">
+        <div>
+            <MudText Typo="Typo.h6" class="section-title">End of Day</MudText>
+            <MudText Typo="Typo.caption" class="text-muted">Daily sales and closing summary</MudText>
+        </div>
+        <MudIconButton Icon="@Icons.Material.Filled.Print" Color="Color.Primary" Variant="Variant.Outlined" Size="Size.Small" Class="add-btn" />
+    </div>
+
+    <!-- Date Picker: Automatically triggers reload when changed -->
+    <MudPaper Elevation="1" Class="pa-3 mb-4 date-picker-card">
+       <MudDatePicker @bind-Date="selectedDate" 
+               Label="Select Date" 
+               Variant="Variant.Text" 
+               DateFormat="dd/MM/yyyy"
+               Class="w-100" />
+    </MudPaper>
+
+    @if (isLoading)
+    {
+        <SkeletonLoader />
+    }
+    else
+    {
+        <!-- Total Sales Gradient Card -->
+        <MudPaper Elevation="0" class="eod-total-card pa-4 mb-5">
+            <div class="d-flex align-center justify-space-between mb-2">
+                <MudText Typo="Typo.overline" class="overview-label">TOTAL SALES FOR DAY</MudText>
+                <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Color="Color.Success" />
+            </div>
+            
+            <MudText Typo="Typo.h3" class="overview-amount">
+                @Report.TotalSales.ToString("C")
+            </MudText>
+            
+            <div class="d-flex align-center mt-3 overview-footer">
+                <MudIcon Icon="@Icons.Material.Filled.Receipt" Size="Size.Small" class="mr-1" />
+                <MudText Typo="Typo.body2">@Report.TransactionCount Transactions</MudText>
+            </div>
+        </MudPaper>
+
+        <!-- Payment Breakdown -->
+        <div class="section-header mb-3">
+            <MudText Typo="Typo.h6" class="section-title">Payment Breakdown</MudText>
+        </div>
+
+        <MudGrid Spacing="3" Class="mb-5">
+            <!-- Cash -->
+            <MudItem xs="6">
+                <MudPaper Elevation="1" Class="stat-card">
+                    <div class="stat-icon cash-icon">
+                        <MudIcon Icon="@Icons.Material.Filled.Money" />
+                    </div>
+                    <MudText Typo="Typo.h5" class="stat-value">@Report.CashTotal.ToString("C")</MudText>
+                    <MudText Typo="Typo.caption" class="stat-label">Cash</MudText>
+                </MudPaper>
+            </MudItem>
+
+            <!-- Card -->
+            <MudItem xs="6">
+                <MudPaper Elevation="1" Class="stat-card">
+                    <div class="stat-icon card-icon">
+                        <MudIcon Icon="@Icons.Material.Filled.CreditCard" />
+                    </div>
+                    <MudText Typo="Typo.h5" class="stat-value">@Report.CardTotal.ToString("C")</MudText>
+                    <MudText Typo="Typo.caption" class="stat-label">Card</MudText>
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+    }
+</div>
+
+@code {
+    private DateTime? selectedDate = DateTime.Today;
+    private bool isLoading = true;
+    private EodResponse Report = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDataAsync();
+    }
+
+    // Reloads data when user picks a new date
+    private async Task OnDateChanged(DateTime? newDate)
+    {
+        selectedDate = newDate;
+        isLoading = true;
+        await LoadDataAsync();
+    }
+
+    private async Task LoadDataAsync()
+    {
+        try
+        {
+            Report = await EodService.GetEodReportAsync(selectedDate ?? DateTime.Today);
+        }
+        catch
+        {
+            // If API fails, default to empty so app doesn't crash
+            Report = new EodResponse();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

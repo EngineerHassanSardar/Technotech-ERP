@@ -1,0 +1,186 @@
+﻿@page "/home"
+@using MudBlazor
+@inject NavigationManager Nav
+
+<PageTitle>Home - Technotech ERP</PageTitle>
+
+<div class="erp-home">
+
+    <!-- Welcome Header -->
+    <MudPaper Elevation="0" Class="welcome-card pa-4 mb-5">
+        <div class="d-flex align-center justify-space-between">
+            <div class="welcome-content">
+                <MudText Typo="Typo.overline" Class="welcome-label">
+                    TECHNOTECH ERP
+                </MudText>
+
+                <MudText Typo="Typo.h5" Class="welcome-title">
+                    Welcome back!
+                </MudText>
+<MudText Typo="Typo.body2" Class="welcome-subtitle">
+    @CurrentUserName
+</MudText>
+
+                <div class="welcome-date mt-3">
+                    <MudIcon Icon="@Icons.Material.Filled.CalendarToday" Size="Size.Small" />
+                    <MudText Typo="Typo.caption">
+                        @DateTime.Now.ToString("dddd, dd MMM yyyy")
+                    </MudText>
+                </div>
+            </div>
+
+            <MudAvatar Size="Size.Large" Class="profile-avatar">
+                <MudIcon Icon="@Icons.Material.Filled.Person" Size="Size.Large" />
+            </MudAvatar>
+        </div>
+    </MudPaper>
+
+    <!-- Quick Access Heading -->
+    <div class="section-header mb-3">
+        <div>
+            <MudText Typo="Typo.h6" Class="section-title">
+                Quick Access
+            </MudText>
+
+            <MudText Typo="Typo.body2" Class="section-subtitle">
+                Manage your business reports
+            </MudText>
+        </div>
+
+        <MudIcon Icon="@Icons.Material.Filled.Apps" Class="section-icon" />
+    </div>
+
+    <!-- Main Navigation Cards -->
+    <MudGrid Spacing="3" Class="quick-access-grid mb-5">
+
+        <!-- Dashboard -->
+        <MudItem xs="6">
+            <MudPaper Elevation="1" Class="module-card dashboard-card" @onclick='() => NavigateTo("/dashboard")'>
+                <div class="module-top">
+                    <div class="module-icon dashboard-icon">
+                        <MudIcon Icon="@Icons.Material.Filled.Dashboard" Size="Size.Large" />
+                    </div>
+                    <MudIcon Icon="@Icons.Material.Filled.ArrowOutward" Class="module-arrow" />
+                </div>
+                <MudText Typo="Typo.subtitle1" Class="module-title">
+                    Dashboard
+                </MudText>
+                <MudText Typo="Typo.caption" Class="module-description">
+                    Business overview
+                </MudText>
+            </MudPaper>
+        </MudItem>
+
+        <!-- Inventory -->
+        <MudItem xs="6">
+            <MudPaper Elevation="1" Class="module-card inventory-card" @onclick='() => NavigateTo("/inventory")'>
+                <div class="module-top">
+                    <div class="module-icon inventory-icon">
+                        <MudIcon Icon="@Icons.Material.Filled.Inventory2" Size="Size.Large" />
+                    </div>
+                    <MudIcon Icon="@Icons.Material.Filled.ArrowOutward" Class="module-arrow" />
+                </div>
+                <MudText Typo="Typo.subtitle1" Class="module-title">
+                    Inventory
+                </MudText>
+                <MudText Typo="Typo.caption" Class="module-description">
+                    Stock and items
+                </MudText>
+            </MudPaper>
+        </MudItem>
+
+        <!-- End of Day -->
+        <MudItem xs="6">
+            <MudPaper Elevation="1" Class="module-card eod-card" @onclick='() => NavigateTo("/eod")'>
+                <div class="module-top">
+                    <div class="module-icon eod-icon">
+                        <MudIcon Icon="@Icons.Material.Filled.Assessment" Size="Size.Large" />
+                    </div>
+                    <MudIcon Icon="@Icons.Material.Filled.ArrowOutward" Class="module-arrow" />
+                </div>
+                <MudText Typo="Typo.subtitle1" Class="module-title">
+                    End of Day
+                </MudText>
+                <MudText Typo="Typo.caption" Class="module-description">
+                    Daily business reports
+                </MudText>
+            </MudPaper>
+        </MudItem>
+
+        <!-- Expenses -->
+        <MudItem xs="6">
+            <MudPaper Elevation="1" Class="module-card expenses-card" @onclick='() => NavigateTo("/expenses")'>
+                <div class="module-top">
+                    <div class="module-icon expenses-icon">
+                        <MudIcon Icon="@Icons.Material.Filled.Payments" Size="Size.Large" />
+                    </div>
+                    <MudIcon Icon="@Icons.Material.Filled.ArrowOutward" Class="module-arrow" />
+                </div>
+                <MudText Typo="Typo.subtitle1" Class="module-title">
+                    Expenses
+                </MudText>
+                <MudText Typo="Typo.caption" Class="module-description">
+                    Business expenditures
+                </MudText>
+            </MudPaper>
+        </MudItem>
+
+    </MudGrid>
+
+    <!-- System Connection Status -->
+    <div class="section-header mb-3">
+        <MudText Typo="Typo.h6" Class="section-title">
+            System Status
+        </MudText>
+    </div>
+
+    <MudPaper Elevation="1" Class="status-card pa-4 mb-4">
+        <div class="d-flex align-center">
+            <div class="status-icon">
+                <MudIcon Icon="@Icons.Material.Filled.CloudDone" Size="Size.Large" />
+            </div>
+            <div class="status-content flex-grow-1">
+                <MudText Typo="Typo.subtitle1" Class="status-title">
+                    API Connection
+                </MudText>
+                <MudText Typo="Typo.body2" Class="status-description">
+                    Connection status should be verified by the app.
+                </MudText>
+            </div>
+            <MudChip T="string" Size="Size.Small" Color="Color.Success" Variant="Variant.Outlined">
+                Ready
+            </MudChip>
+        </div>
+        <MudDivider Class="my-3" />
+        <div class="d-flex align-center justify-space-between">
+            <div class="d-flex align-center status-footer">
+                <MudIcon Icon="@Icons.Material.Filled.Sync" Size="Size.Small" />
+                <MudText Typo="Typo.caption">
+                    Last opened
+                </MudText>
+            </div>
+            <MudText Typo="Typo.caption" Class="status-time">
+                @DateTime.Now.ToString("hh:mm tt")
+            </MudText>
+        </div>
+    </MudPaper>
+
+     <!-- Footer -->
+    <div class="home-footer" style="padding-bottom: 40px; margin-bottom: 20px;">
+        <MudIcon Icon="@Icons.Material.Filled.Security" Size="Size.Small" />
+        <MudText Typo="Typo.caption">
+            Technotech ERP · Business Management
+        </MudText>
+    </div>
+</div>
+
+
+
+@code {
+    private string CurrentUserName = "Administrator"; 
+
+    private void NavigateTo(string route)
+    {
+        Nav.NavigateTo(route);
+    }
+}

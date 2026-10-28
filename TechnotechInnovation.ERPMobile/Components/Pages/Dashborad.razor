@@ -1,0 +1,98 @@
+﻿@page "/dashboard"
+@using MudBlazor
+@using Core.BaseRepository
+@using CommonModels.Reports
+@using TechnotechInnovation.ERPMobile.Components.Shared
+@inject IDashboardService DashboardService
+@inject NavigationManager Nav
+
+<PageTitle>Dashboard - Technotech ERP</PageTitle>
+
+<div class="erp-dashboard">
+    @if (isLoading)
+    {
+        <SkeletonLoader />
+    }
+    else
+    {
+        <MudPaper Elevation="0" Class="overview-card pa-4 mb-5">
+            <div class="d-flex align-center justify-space-between mb-2">
+                <MudText Typo="Typo.overline" Class="overview-label">TODAY'S OVERVIEW</MudText>
+                <MudIcon Icon="@Icons.Material.Filled.MoreHoriz" Class="text-white opacity-50" />
+            </div>
+            <MudText Typo="Typo.h3" Class="overview-amount">@data.TotalSales.ToString("C")</MudText>
+            <div class="d-flex align-center mt-3 overview-footer">
+                <MudIcon Icon="@Icons.Material.Filled.TrendingUp" Size="Size.Small" Class="mr-1" />
+                <MudText Typo="Typo.body2">Total Sales today</MudText>
+            </div>
+        </MudPaper>
+
+        <div class="section-header mb-3">
+            <MudText Typo="Typo.h6" Class="section-title">Key Metrics</MudText>
+        </div>
+
+        <MudGrid Spacing="3" Class="mb-5">
+            <MudItem xs="6">
+                <MudPaper Elevation="1" Class="stat-card">
+                    <div class="stat-icon orders-icon"><MudIcon Icon="@Icons.Material.Filled.ShoppingBag" /></div>
+                    <MudText Typo="Typo.h5" Class="stat-value">@data.TotalOrders</MudText>
+                    <MudText Typo="Typo.caption" Class="stat-label">Total Orders</MudText>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="6">
+                <MudPaper Elevation="1" Class="stat-card">
+                    <div class="stat-icon expenses-icon"><MudIcon Icon="@Icons.Material.Filled.Payments" /></div>
+                    <MudText Typo="Typo.h5" Class="stat-value">@data.TotalExpenses.ToString("C")</MudText>
+                    <MudText Typo="Typo.caption" Class="stat-label">Expenses</MudText>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12">
+                <MudPaper Elevation="1" Class="stat-card horizontal-card" @onclick='() => Nav.NavigateTo("/inventory")'>
+                    <div class="d-flex align-center w-100">
+                        <div class="stat-icon warning-icon mr-3"><MudIcon Icon="@Icons.Material.Filled.WarningAmber" /></div>
+                        <div class="flex-grow-1">
+                            <MudText Typo="Typo.subtitle1" class="font-weight-bold">Low Stock Alert</MudText>
+                            <MudText Typo="Typo.caption" class="text-muted">Items need restocking</MudText>
+                        </div>
+                        <MudText Typo="Typo.h5" class="font-weight-bold text-warning">@data.LowStockItems</MudText>
+                        <MudIcon Icon="@Icons.Material.Filled.ChevronRight" Class="ml-2 text-muted" />
+                    </div>
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+
+        <div class="section-header mb-3">
+            <MudText Typo="Typo.h6" Class="section-title">Recent Sales</MudText>
+        </div>
+
+        <div class="d-flex flex-column gap-2 mb-4">
+            <MudPaper Elevation="1" Class="activity-card">
+                <div class="activity-icon"><MudIcon Icon="@Icons.Material.Filled.Receipt" /></div>
+                <div class="flex-grow-1">
+                    <MudText Typo="Typo.subtitle2" class="font-weight-bold">Waiting for API...</MudText>
+                    <MudText Typo="Typo.caption" class="text-muted">Connect API to see live orders</MudText>
+                </div>
+                <MudText Typo="Typo.subtitle1" class="font-weight-bold text-muted">$0.00</MudText>
+            </MudPaper>
+        </div>
+    }
+</div>
+
+@code {
+    private DashboardResponse data = new();
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Attempts to load real data. If API is down, returns empty model instead of crashing.
+            data = await DashboardService.GetDashboardDataAsync() ?? new();
+        }
+        catch
+        {
+            data = new DashboardResponse();
+        }
+        finally { isLoading = false; }
+    }
+}

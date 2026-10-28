@@ -1,0 +1,50 @@
+﻿@page "/employees"
+@using MudBlazor
+@using CommonModels.Employees  <!-- ADD THIS LINE -->
+@using TechnotechInnovation.ERPMobile.Components.Shared
+@inject IEmployeeService EmployeeService
+
+<PageTitle>Employees - Technotech ERP</PageTitle>
+<div class="erp-employees">
+    <div class="section-header mb-3 mt-2">
+        <div>
+            <MudText Typo="Typo.h6" class="section-title">Employees</MudText>
+            <MudText Typo="Typo.caption" class="text-muted">Manage your staff and roles</MudText>
+        </div>
+        <MudIconButton Icon="@Icons.Material.Filled.PersonAdd" Color="Color.Primary" Variant="Variant.Filled" Size="Size.Small" Class="add-btn" />
+    </div>
+
+    @if (isLoading)
+    {
+        <SkeletonLoader />
+    }
+    else
+    {
+        <MudTextField @bind-Value="searchString" Placeholder="Search by name or role..." Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Variant="Variant.Outlined" Margin="Margin.Dense" Class="search-bar mb-4" />
+
+        <div class="inventory-state">
+            <div class="empty-state-icon"><MudIcon Icon="@Icons.Material.Filled.People" Size="Size.Large" /></div>
+            <MudText Typo="Typo.h6" Class="state-title">No employees found</MudText>
+            <MudText Typo="Typo.body2" class="state-description">Connect your API to load employees.</MudText>
+        </div>
+    }
+</div>
+
+@code {
+    private string searchString = "";
+    private bool isLoading = true;
+    private List<EmployeeDto> EmployeeList = new(); // Changed name here
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            EmployeeList = await EmployeeService.GetEmployeesAsync();
+        }
+        catch
+        {
+            EmployeeList = new();
+        }
+        finally { isLoading = false; }
+    }
+}

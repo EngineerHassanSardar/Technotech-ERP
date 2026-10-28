@@ -1,0 +1,120 @@
+﻿@page "/inventory/{Id:int}"
+@using MudBlazor
+@using CommonModels.Inventory
+@using Core.BaseRepository
+@inject IInventoryService InventoryService
+@inject NavigationManager Nav
+
+<PageTitle>Product Details - Technotech ERP</PageTitle>
+
+<div class="erp-product-details">
+
+    @if (isLoading)
+    {
+        <div class="d-flex justify-center align-center" style="height: 50vh;">
+            <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+        </div>
+    }
+    else if (Product == null)
+    {
+        <div class="d-flex flex-column align-center justify-center" style="height: 50vh;">
+            <MudIcon Icon="@Icons.Material.Filled.ErrorOutline" Size="Size.Large" Color="Color.Error" />
+            <MudText Typo="Typo.h6" Class="mt-3">Product not found</MudText>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-4" OnClick='() => Nav.NavigateTo("/inventory")'>
+                Go Back
+            </MudButton>
+        </div>
+    }
+    else
+    {
+        <!-- Back Button Header -->
+        <div class="d-flex align-center mb-4 mt-2">
+            <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Color="Color.Default" OnClick='() => Nav.NavigateTo("/inventory")' />
+            <MudText Typo="Typo.h6" Class="ml-2 section-title">Product Details</MudText>
+        </div>
+
+        <!-- Product Header Card (Dynamic) -->
+        <MudPaper Elevation="1" Class="product-header-card pa-4 mb-4">
+            <div class="d-flex align-center">
+                <div class="product-icon">
+                    <MudIcon Icon="@Icons.Material.Filled.Inventory2" Size="Size.Large" />
+                </div>
+                <div class="ml-3">
+                    <MudText Typo="Typo.h5" Class="font-weight-bold">@Product.Name</MudText>
+                    <MudText Typo="Typo.caption" Class="text-muted">SKU: @(string.IsNullOrWhiteSpace(Product.Sku) ? "N/A" : Product.Sku)</MudText>
+                </div>
+            </div>
+        </MudPaper>
+
+        <!-- Details Grid (Dynamic) -->
+        <MudGrid Spacing="3" Class="mb-4">
+            <MudItem xs="6">
+                <MudPaper Elevation="1" Class="stat-card">
+                    <MudText Typo="Typo.caption" Class="text-muted">Current Stock</MudText>
+                    <!-- FIXED: Using the method GetStockColorClass() instead of inline C# -->
+                    <MudText Typo="Typo.h4" Class="@GetStockColorClass()">
+                        @Product.Stock
+                    </MudText>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="6">
+                <MudPaper Elevation="1" Class="stat-card">
+                    <MudText Typo="Typo.caption" Class="text-muted">Price</MudText>
+                    <MudText Typo="Typo.h4" Class="font-weight-bold mt-1">@Product.Price.ToString("C")</MudText>
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+
+        <!-- Action Buttons -->
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Size="Size.Large" Class="mb-3" StartIcon="@Icons.Material.Filled.Edit">
+            Edit Product
+        </MudButton>
+
+        <MudButton Variant="Variant.Outlined" Color="Color.Error" FullWidth="true" Size="Size.Large" StartIcon="@Icons.Material.Filled.Delete">
+            Delete Product
+        </MudButton>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private ProductDto? Product;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // When your API is ready, you will call a method like:
+            // Product = await InventoryService.GetProductByIdAsync(Id);
+            
+            await Task.Delay(300);
+            
+            Product = new ProductDto 
+            { 
+                Id = Id, 
+                Name = "Dynamic Product Load", 
+                Sku = $"SKU-{Id}", 
+                Price = 0.00m, 
+                Stock = 0 
+            };
+        }
+        catch
+        {
+            Product = null;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    // ADDED THIS METHOD: Returns the correct CSS class based on stock
+    private string GetStockColorClass()
+    {
+        if (Product == null) return "font-weight-bold mt-1 text-muted";
+        return Product.Stock < 10 ? "font-weight-bold mt-1 text-warning" : "font-weight-bold mt-1 text-success";
+    }
+}

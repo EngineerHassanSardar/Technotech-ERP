@@ -1,0 +1,37 @@
+﻿@using MudBlazor
+
+<div style="height: 100%; background-color: #ffffff; display: flex; flex-direction: column;">
+    <!-- Profile Header -->
+    <div class="nav-header">
+        <MudAvatar Color="Color.Primary" Size="Size.Large" Class="mb-3">
+            <MudIcon Icon="@Icons.Material.Filled.Person" />
+        </MudAvatar>
+        <MudText Typo="Typo.subtitle1" Class="font-weight-bold text-white">Administrator</MudText>
+        <MudText Typo="Typo.caption" class="text-blue-200">admin@technotech.com</MudText>
+    </div>
+
+    <!-- Links -->
+    <MudNavMenu Class="mt-2 px-2" style="flex-grow: 1; overflow-y: auto;">
+        <MudText Typo="Typo.overline" Class="px-3 mb-2 text-muted font-weight-bold">MAIN MENU</MudText>
+        
+        <MudNavLink Href="/home" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Home" Class="nav-item">Home</MudNavLink>
+        <MudNavLink Href="/dashboard" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Dashboard" Class="nav-item">Dashboard</MudNavLink>
+        <MudNavLink Href="/inventory" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Inventory2" Class="nav-item">Inventory</MudNavLink>
+        
+        <!-- ADDED PURCHASE LINK HERE -->
+        <MudNavLink Href="/purchase" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.ShoppingCart" Class="nav-item">Purchase</MudNavLink>
+        
+        <MudNavLink Href="/employees" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.People" Class="nav-item">Employees</MudNavLink>
+        
+        <MudDivider Class="my-3" />
+        
+        <MudText Typo="Typo.overline" Class="px-3 mb-2 text-muted font-weight-bold">REPORTS</MudText>
+        
+        <MudNavLink Href="/eod" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Assessment" Class="nav-item">End of Day</MudNavLink>
+        <MudNavLink Href="/expenses" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Payments" Class="nav-item">Expenses</MudNavLink>
+
+        <MudDivider Class="my-3" />
+
+        <MudNavLink Href="/login" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Logout" Class="nav-item text-danger">Logout</MudNavLink>
+    </MudNavMenu>
+</div>

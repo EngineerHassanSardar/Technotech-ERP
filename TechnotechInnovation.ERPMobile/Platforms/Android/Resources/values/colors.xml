@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<!-- Main App Brand Color -->
+	<color name="colorPrimary">#123a70</color>
+
+	<!-- Status Bar Color (Matches your App Bar) -->
+	<color name="colorPrimaryDark">#123a70</color>
+
+	<!-- Accent Color (Used for Android UI elements) -->
+	<color name="colorAccent">#123a70</color>
+</resources>

@@ -1,0 +1,99 @@
+﻿@page "/purchase"
+@using MudBlazor
+@using TechnotechInnovation.ERPMobile.Components.Shared
+
+<PageTitle>Purchase - Technotech ERP</PageTitle>
+
+<div class="erp-purchase">
+    <div class="section-header mb-3 mt-2">
+        <div>
+            <MudText Typo="Typo.h6" class="section-title">Purchases</MudText>
+            <MudText Typo="Typo.caption" class="text-muted">Manage supplier orders and stock</MudText>
+        </div>
+        <MudIconButton Icon="@Icons.Material.Filled.AddShoppingCart" Color="Color.Primary" Variant="Variant.Filled" Size="Size.Small" Class="add-btn" />
+    </div>
+
+    @if (isLoading)
+    {
+        <SkeletonLoader />
+    }
+    else
+    {
+        <!-- Summary Card (Ready for API Binding) -->
+        <MudPaper Elevation="0" Class="purchase-summary-card pa-4 mb-5">
+            <div class="d-flex align-center justify-space-between mb-2">
+                <MudText Typo="Typo.overline" Class="overview-label">TOTAL PURCHASES (@DateTime.Now.ToString("MMM").ToUpper())</MudText>
+                <MudIcon Icon="@Icons.Material.Filled.LocalShipping" class="text-white opacity-50" />
+            </div>
+            <MudText Typo="Typo.h3" class="overview-amount">
+                $0.00 <!-- Replace with @summary.TotalAmount.ToString("C") -->
+            </MudText>
+            <div class="d-flex align-center mt-3 overview-footer">
+                <MudIcon Icon="@Icons.Material.Filled.Inventory" Size="Size.Small" class="mr-1" />
+                <MudText Typo="Typo.body2">0 Pending Orders</MudText>
+            </div>
+        </MudPaper>
+
+        <div class="section-header mb-3">
+            <MudText Typo="Typo.h6" class="section-title">Recent Orders</MudText>
+        </div>
+
+        <!-- Empty State / Dynamic List -->
+        @if (Purchases.Count == 0)
+        {
+            <div class="inventory-state">
+                <div class="empty-state-icon"><MudIcon Icon="@Icons.Material.Filled.ShoppingCart" Size="Size.Large" /></div>
+                <MudText Typo="Typo.h6" Class="state-title">No purchase orders</MudText>
+                <MudText Typo="Typo.body2" class="state-description">Connect your API to load purchase history.</MudText>
+            </div>
+        }
+        else
+        {
+            <div class="purchase-list mb-4">
+                @foreach (var order in Purchases)
+                {
+                    <MudPaper Elevation="1" Class="purchase-card mb-3">
+                        <div class="purchase-icon @(order.IsDelivered ? "delivered-icon" : "pending-icon")">
+                            <MudIcon Icon="@(order.IsDelivered ? Icons.Material.Filled.CheckCircle : Icons.Material.Filled.HourglassEmpty)" />
+                        </div>
+                        <div class="flex-grow-1 purchase-details">
+                            <MudText Typo="Typo.subtitle1" class="purchase-name">@order.SupplierName</MudText>
+                            <MudText Typo="Typo.caption" class="purchase-meta">@order.OrderNumber • @order.ItemCount Items</MudText>
+                        </div>
+                        <div class="text-right">
+                            <MudText Typo="Typo.subtitle1" class="purchase-amount">@order.TotalAmount.ToString("C")</MudText>
+                            <MudChip T="string" Size="Size.Small" Color="@(order.IsDelivered ? Color.Success : Color.Warning)" Variant="Variant.Text" Class="ma-0 mt-1 chip-small">
+                                @(order.IsDelivered ? "Delivered" : "Pending")
+                            </MudChip>
+                        </div>
+                    </MudPaper>
+                }
+            </div>
+        }
+    }
+</div>
+
+@code {
+    private bool isLoading = true;
+    
+    // This list will hold your real data once the API is connected
+    private List<PurchaseOrderDto> Purchases = new();
+
+    protected override void OnInitialized()
+    {
+        // When you are ready to connect the API:
+        // Purchases = await PurchaseService.GetPurchasesAsync();
+        
+        isLoading = false;
+    }
+
+    // Placeholder model until you add it to CommonModels
+    public class PurchaseOrderDto
+    {
+        public string SupplierName { get; set; } = string.Empty;
+        public string OrderNumber { get; set; } = string.Empty;
+        public int ItemCount { get; set; }
+        public decimal TotalAmount { get; set; }
+        public bool IsDelivered { get; set; }
+    }
+}

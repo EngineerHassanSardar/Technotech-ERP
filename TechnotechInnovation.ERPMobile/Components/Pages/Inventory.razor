@@ -1,0 +1,139 @@
+﻿@page "/inventory"
+@using MudBlazor
+@using CommonModels.Inventory
+@using Core.BaseRepository
+@using System.Globalization
+@using TechnotechInnovation.ERPMobile.Components.Shared
+@inject IInventoryService InventoryService
+@inject NavigationManager Nav
+
+<PageTitle>Inventory | Technotech ERP</PageTitle>
+
+<div class="inventory-page">
+    <div class="inventory-header">
+        <div class="header-content">
+            <div class="page-eyebrow">
+                <MudIcon Icon="@Icons.Material.Filled.Inventory2" Size="Size.Small" />
+                INVENTORY MANAGEMENT
+            </div>
+            <MudText Typo="Typo.h5" Class="page-title">Inventory</MudText>
+            <MudText Typo="Typo.body2" Class="page-subtitle">Track products, stock levels and pricing.</MudText>
+        </div>
+        <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Inherit" Size="Size.Large" Class="add-product-button" OnClick="AddProduct" />
+    </div>
+
+    @if (isLoading)
+    {
+        <SkeletonLoader />
+    }
+    else
+    {
+        <div class="inventory-stats">
+            <MudPaper Elevation="0" Class="stat-card">
+                <div class="stat-icon products-stat-icon"><MudIcon Icon="@Icons.Material.Filled.Inventory2" /></div>
+                <div class="stat-label">Total Products</div>
+                <div class="stat-value">@Products.Count.ToString("N0")</div>
+                <div class="stat-caption">Products in inventory</div>
+            </MudPaper>
+            <MudPaper Elevation="0" Class="stat-card">
+                <div class="stat-icon low-stat-icon"><MudIcon Icon="@Icons.Material.Filled.WarningAmber" /></div>
+                <div class="stat-label">Low Stock</div>
+                <div class="stat-value">@LowStockCount.ToString("N0")</div>
+                <div class="stat-caption">Below 10 units</div>
+            </MudPaper>
+            <MudPaper Elevation="0" Class="stat-card">
+                <div class="stat-icon units-stat-icon"><MudIcon Icon="@Icons.Material.Filled.Warehouse" /></div>
+                <div class="stat-label">Total Units</div>
+                <div class="stat-value">@TotalUnits.ToString("N0")</div>
+                <div class="stat-caption">Available stock</div>
+            </MudPaper>
+        </div>
+
+        <div class="products-section">
+            <div class="section-heading">
+                <div>
+                    <MudText Typo="Typo.h6" Class="section-title">Products</MudText>
+                    <MudText Typo="Typo.caption" Class="section-description">Search and manage your inventory items.</MudText>
+                </div>
+                <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined" Color="Color.Primary" Class="product-count-chip">
+                    @FilteredItems.Count() items
+                </MudChip>
+            </div>
+
+            <MudTextField @bind-Value="searchString" Placeholder="Search by product name or SKU..." Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Variant="Variant.Outlined" Margin="Margin.Dense" Immediate="true" Clearable="true" Class="inventory-search" />
+
+            @if (!FilteredItems.Any())
+            {
+                <!-- DYNAMIC EMPTY STATE -->
+                <div class="inventory-state">
+                    <div class="empty-state-icon"><MudIcon Icon="@Icons.Material.Filled.Inventory2" Size="Size.Large" /></div>
+                    <MudText Typo="Typo.h6" Class="state-title">@(Products.Count == 0 ? "Inventory is empty" : "No products found")</MudText>
+                    <MudText Typo="Typo.body2" Class="state-description">
+                        @(Products.Count == 0 ? "Your API returned 0 products. Add some to your database to see them here." : "Try another product name or SKU.")
+                    </MudText>
+                </div>
+            }
+            else
+            {
+                <div class="product-list">
+                    @foreach (var item in FilteredItems)
+                    {
+                        <MudPaper @key="item.Id" Elevation="0" Class="product-card" @onclick="() => OpenProduct(item.Id)">
+                            <div class="product-icon @(GetStockClass(item.Stock))"><MudIcon Icon="@Icons.Material.Filled.Inventory2" Size="Size.Medium" /></div>
+                            <div class="product-information">
+                                <MudText Typo="Typo.subtitle1" Class="product-name" Title="@item.Name">@item.Name</MudText>
+                                <MudText Typo="Typo.caption" Class="product-sku">SKU: @(string.IsNullOrWhiteSpace(item.Sku) ? "N/A" : item.Sku)</MudText>
+                                <div class="product-stock-line">
+                                    <span class="stock-dot @(GetStockClass(item.Stock))"></span>
+                                    <span class="stock-label @(GetStockTextClass(item.Stock))">@GetStockLabel(item.Stock)</span>
+                                </div>
+                            </div>
+                            <div class="product-right">
+                                <MudText Typo="Typo.subtitle1" Class="product-price">@item.Price.ToString("C", CultureInfo.CurrentCulture)</MudText>
+                                <div class="quantity-label">IN STOCK</div>
+                                <div class="quantity-value">@item.Stock.ToString("N0") <span class="quantity-unit">units</span></div>
+                            </div>
+                        </MudPaper>
+                    }
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private string searchString = string.Empty;
+    private List<ProductDto> Products = new();
+    private bool isLoading = true;
+
+    private int LowStockCount => Products.Count(product => product.Stock >= 0 && product.Stock < 10);
+    private int TotalUnits => Products.Sum(product => Math.Max(0, product.Stock));
+
+    private IEnumerable<ProductDto> FilteredItems =>
+        string.IsNullOrWhiteSpace(searchString) ? Products : Products.Where(product =>
+                (!string.IsNullOrWhiteSpace(product.Name) && product.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                || (!string.IsNullOrWhiteSpace(product.Sku) && product.Sku.Contains(searchString, StringComparison.OrdinalIgnoreCase)));
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Loads from real API. If API is empty, Products will be empty and show the Empty State.
+            Products = await InventoryService.GetProductsAsync() ?? new();
+        }
+        catch
+        {
+            Products = new();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private static string GetStockClass(int stock) => stock <= 0 ? "out-of-stock-icon" : stock < 10 ? "low-stock-icon" : "in-stock-icon";
+    private static string GetStockTextClass(int stock) => stock <= 0 ? "out-of-stock-text" : stock < 10 ? "low-stock-text" : "in-stock-text";
+    private static string GetStockLabel(int stock) => stock <= 0 ? "Out of stock" : stock < 10 ? "Low stock" : "In stock";
+    private void AddProduct() => Nav.NavigateTo("/inventory/create");
+    private void OpenProduct(int id) => Nav.NavigateTo($"/inventory/{id}");
+}

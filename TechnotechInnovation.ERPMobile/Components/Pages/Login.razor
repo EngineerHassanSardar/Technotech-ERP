@@ -1,0 +1,142 @@
+﻿@page "/"
+@page "/login"
+@layout EmptyLayout
+@using MudBlazor
+@using Core.BaseRepository
+@using CommonModels.Auth
+@inject IAuthService AuthService
+@inject NavigationManager Nav
+
+<PageTitle>Sign In | Technotech ERP</PageTitle>
+
+<div class="login-page">
+    <div class="login-shell">
+        @if (isPageLoading)
+        {
+            <div class="skeleton-wrapper">
+                <div class="skeleton-logo"></div>
+                <div class="skeleton-title"></div>
+                <div class="skeleton-card">
+                    <div class="skeleton-input"></div>
+                    <div class="skeleton-input"></div>
+                    <div class="skeleton-button"></div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="fade-in-anim">
+                <header class="brand-section">
+                    <div class="brand-logo">
+                        <MudIcon Icon="@Icons.Material.Filled.Business" Size="Size.Large" />
+                    </div>
+                    <MudText Typo="Typo.h4" Class="brand-name">Technotech</MudText>
+                    <MudText Typo="Typo.body2" Class="brand-subtitle">ENTERPRISE RESOURCE PLANNING</MudText>
+                </header>
+
+                <MudPaper Elevation="0" Class="login-card">
+                    <div class="form-heading">
+                        <MudText Typo="Typo.h5" Class="welcome-title">Welcome back</MudText>
+                        <MudText Typo="Typo.body2" Class="welcome-description">Sign in to access your workspace.</MudText>
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(errorMessage))
+                    {
+                        <MudAlert Severity="Severity.Error" Variant="Variant.Outlined" Dense="true" Class="login-error mb-4">
+                            @errorMessage
+                        </MudAlert>
+                    }
+
+                    <EditForm Model="loginModel" OnValidSubmit="HandleLogin">
+                        <div class="form-field">
+                            <label class="field-label">Username</label>
+                            <MudTextField T="string" @bind-Value="loginModel.Username" Placeholder="Enter your username"
+                                          Variant="Variant.Outlined" Margin="Margin.Dense" Required="true" Disabled="@isLoading" Class="login-input">
+                                <AdornmentStart><MudIcon Icon="@Icons.Material.Filled.PersonOutline" /></AdornmentStart>
+                            </MudTextField>
+                        </div>
+
+                        <div class="form-field password-field">
+                            <label class="field-label">Password</label>
+                            <MudTextField T="string" @bind-Value="loginModel.Password" Placeholder="Enter your password"
+                                          Variant="Variant.Outlined" Margin="Margin.Dense" InputType="@(showPassword ? InputType.Text : InputType.Password)"
+                                          Required="true" Disabled="@isLoading" Class="login-input">
+                                <AdornmentStart><MudIcon Icon="@Icons.Material.Filled.Lock" /></AdornmentStart>
+                                <AdornmentEnd>
+                                    <MudIconButton Icon="@(showPassword ? Icons.Material.Filled.VisibilityOff : Icons.Material.Filled.Visibility)"
+                                                   Size="Size.Small" Disabled="@isLoading" OnClick="TogglePasswordVisibility" />
+                                </AdornmentEnd>
+                            </MudTextField>
+                        </div>
+
+                        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" FullWidth="true" Disabled="@isLoading" Class="sign-in-button">
+                            @if (isLoading)
+                            {
+                                <MudProgressCircular Indeterminate="true" Size="Size.Small" Color="Color.Inherit" Class="button-spinner" />
+                                <span>Signing in...</span>
+                            }
+                            else
+                            {
+                                <span>Sign in</span>
+                                <MudIcon Icon="@Icons.Material.Filled.ArrowForward" Size="Size.Small" Class="button-arrow" />
+                            }
+                        </MudButton>
+                    </EditForm>
+                </MudPaper>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private LoginRequest loginModel = new();
+    private bool isLoading = false;
+    private bool showPassword = false;
+    private string? errorMessage;
+    
+    // Set to false so the login page loads instantly
+    private bool isPageLoading = false; 
+
+    private void TogglePasswordVisibility() => showPassword = !showPassword;
+
+    private async Task HandleLogin()
+    {
+        if (isLoading) return;
+        
+        isLoading = true;
+        errorMessage = null;
+
+        try
+        {
+            // Wait 0.3 seconds just to show the loading spinner on the button
+            await Task.Delay(300); 
+
+            // FORCE LOGIN SUCCESS (Bypass API)
+            Nav.NavigateTo("/home", replace: true);
+
+            /* 
+            // ==========================================
+            // REAL API CODE (Uncomment this when your API is ready)
+            // ==========================================
+            var success = await AuthService.LoginAsync(loginModel);
+            if (success)
+            {
+                Nav.NavigateTo("/home", replace: true);
+            }
+            else
+            {
+                errorMessage = "Invalid username or password.";
+            }
+            */
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Unable to connect to the server.";
+            Console.WriteLine(ex.Message);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

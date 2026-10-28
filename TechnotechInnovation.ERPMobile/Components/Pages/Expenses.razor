@@ -1,0 +1,110 @@
+﻿@page "/expenses"
+@using MudBlazor
+@using CommonModels.Expenses
+@using Core.BaseRepository
+@using TechnotechInnovation.ERPMobile.Components.Shared
+@inject IExpenseService ExpenseService
+
+<PageTitle>Expenses - Technotech ERP</PageTitle>
+
+<div class="erp-expenses">
+    <div class="section-header mb-3 mt-2">
+        <div>
+            <MudText Typo="Typo.h6" class="section-title">Expenses</MudText>
+            <MudText Typo="Typo.caption" class="text-muted">Track your business expenditures</MudText>
+        </div>
+        <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Error" Variant="Variant.Filled" Size="Size.Small" Class="add-btn" />
+    </div>
+
+    @if (isLoading)
+    {
+        <SkeletonLoader />
+    }
+    else
+    {
+        <!-- Dynamic Total Summary -->
+        <MudPaper Elevation="0" Class="expense-summary-card pa-4 mb-5">
+            <div class="d-flex align-center justify-space-between mb-2">
+                <MudText Typo="Typo.overline" class="overview-label">TOTAL THIS MONTH</MudText>
+                <MudIcon Icon="@Icons.Material.Filled.TrendingUp" class="text-white opacity-50" />
+            </div>
+            <MudText Typo="Typo.h3" class="overview-amount">
+                @ExpenseList.Sum(x => x.Amount).ToString("C")
+            </MudText>
+            <div class="d-flex align-center mt-3 overview-footer">
+                <MudIcon Icon="@Icons.Material.Filled.CalendarMonth" Size="Size.Small" class="mr-1" />
+                <MudText Typo="Typo.body2">@DateTime.Now.ToString("MMMM yyyy")</MudText>
+            </div>
+        </MudPaper>
+
+        <div class="section-header mb-3">
+            <MudText Typo="Typo.h6" class="section-title">Recent Expenses</MudText>
+        </div>
+
+        <!-- Empty State / Dynamic List -->
+        @if (ExpenseList.Count == 0)
+        {
+            <div class="inventory-state">
+                <div class="empty-state-icon"><MudIcon Icon="@Icons.Material.Filled.Receipt" Size="Size.Large" /></div>
+                <MudText Typo="Typo.h6" Class="state-title">No expenses found</MudText>
+                <MudText Typo="Typo.body2" Class="state-description">Your API returned 0 expenses.</MudText>
+            </div>
+        }
+        else
+        {
+            <div class="expense-list mb-4">
+                @foreach (var exp in ExpenseList)
+                {
+                    <MudPaper Elevation="1" Class="expense-card mb-3">
+                        <div class="expense-icon @(GetIconClass(exp.Category))">
+                            <MudIcon Icon="@GetIcon(exp.Category)" />
+                        </div>
+                        <div class="flex-grow-1 expense-details">
+                            <MudText Typo="Typo.subtitle1" class="expense-name">@exp.Title</MudText>
+                            <MudText Typo="Typo.caption" class="expense-meta">@exp.Date.ToString("MMM dd, yyyy") • @exp.Category</MudText>
+                        </div>
+                        <MudText Typo="Typo.subtitle1" class="expense-amount">-@exp.Amount.ToString("C")</MudText>
+                    </MudPaper>
+                }
+            </div>
+        }
+    }
+</div>
+
+@code {
+    private bool isLoading = true;
+    private List<ExpenseDto> ExpenseList = new(); // Fixed the name here
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            ExpenseList = await ExpenseService.GetExpensesAsync();
+        }
+        catch
+        {
+            ExpenseList = new();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    // Dynamic helper for icons based on category
+    private string GetIcon(string category) => category?.ToLower() switch
+    {
+        "utility" => Icons.Material.Filled.ElectricalServices,
+        "salary" => Icons.Material.Filled.People,
+        "shipping" => Icons.Material.Filled.LocalShipping,
+        _ => Icons.Material.Filled.Receipt
+    };
+
+    private string GetIconClass(string category) => category?.ToLower() switch
+    {
+        "utility" => "utility-icon",
+        "salary" => "salary-icon",
+        "shipping" => "shipping-icon",
+        _ => "shipping-icon"
+    };
+}
