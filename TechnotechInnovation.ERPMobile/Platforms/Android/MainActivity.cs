@@ -12,7 +12,7 @@ namespace TechnotechInnovation.ERPMobile
         {
             base.OnCreate(savedInstanceState);
 
-            // THIS TELLS ANDROID TO NEVER DRAW BEHIND THE CLOCK
+            // THIS FORCES ANDROID TO PUSH THE APP DOWN BELOW THE CLOCK
             if (Build.VERSION.SdkInt >= BuildVersionCodes.R)
             {
                 WindowCompat.SetDecorFitsSystemWindows(Window, true);
